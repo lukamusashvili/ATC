@@ -43,7 +43,6 @@ const port = parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
-const ACTIVE_SHOPIFY_SHOPS = {};
 //#endregion
 //#region APP CONFIG & WEBHOOKS
 app.prepare().then(() => {
@@ -57,17 +56,14 @@ app.prepare().then(() => {
             async afterAuth(ctx) {
                 const { shop, accessToken } = ctx.state.shopify;
                 const host = ctx.query.host;
-                var ღლუპ = await shops.distinct('shop',{})
+                const currentShops = await shops.distinct('shop',{})
                 console.log("00 -- "+shop+" -- "+accessToken)
-                ღლუპ.forEach(ourShop => {
-                    if(ourShop = shop){
-                        ctx.redirect(`/?shop=${shop}&host=${host}`)
-                    }
-                    else{
-                        ACTIVE_SHOPIFY_SHOPS[shop] = accessToken;
-                        ctx.redirect(`/?shop=${shop}&host=${host}`)
-                    }
-                });
+                if (currentShops[shop] === undefined) {
+                    //addShop
+                }
+                else{
+                    ctx.redirect(`/?shop=${shop}&host=${host}`)
+                }
             }
         })
     )
@@ -81,13 +77,13 @@ app.prepare().then(() => {
 
     router.get("/", async (ctx) => {
         const shop = ctx.query.shop;
+        const currentShops = await shops.distinct('shop',{})
 
-        if (ACTIVE_SHOPIFY_SHOPS[shop] === undefined) {
+        if (currentShops[shop] === undefined) {
             console.log("01 -- "+shop)
             ctx.redirect(`/auth?shop=${shop}`);
         } else {
-            console.log("02 -- "+ACTIVE_SHOPIFY_SHOPS[shop])
-            console.log("03 -- "+JSON.stringify(ACTIVE_SHOPIFY_SHOPS))
+            console.log("02 -- "+shop)
             await handleRequest(ctx);
         }
     });

@@ -6,7 +6,9 @@ const reqNumber = {type: Number, required: true}
 
 const shopsSchema = new Schema({
     shop: reqString,
-    token: reqString
+    token: reqString,
+    myWidgets: Number,
+
 },{collection: 'shops', timestamps: true});
 
 const shops = mongoose.model('shops', shopsSchema);
