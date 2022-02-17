@@ -17,6 +17,7 @@ const mongoPath = process.env.MongoDBPath;
 const db = mongoose.connection;
 const dbUpdate = {useNewUrlParser:true,useUnifiedTopology:true};
 const shops = require('./model/shops.js');
+const widgets = require('./model/widgets.js');
 
 mongoose.connect(mongoPath, dbUpdate);
 
@@ -26,6 +27,7 @@ db.on('disconnected', (err) => console.log('Mongo is disconnected'));
 db.on('open', (err) => console.log('Connection Made!'));
 
 var Production = 0; // 0 - Development; 1 - Production
+var currentShops = shops.distinct('shop',{})
 //#endregion
 //#region SHOPIFY INITIALIZE
 Shopify.Context.initialize({
@@ -56,14 +58,22 @@ app.prepare().then(() => {
             async afterAuth(ctx) {
                 const { shop, accessToken } = ctx.state.shopify;
                 const host = ctx.query.host;
-                const currentShops = await shops.distinct('shop',{})
+                currentShops = await shops.distinct('shop',{})
                 console.log("00 -- "+shop+" -- "+accessToken)
-                if (currentShops[shop] === undefined) {
-                    //addShop
+                if (currentShops[shop] === undefined) { //addShop
+                    var data = 
+                    {
+                        shop: shop,
+                        token: accessToken,
+                        numberOfWidgets: 0
+                    }
+                    insertShop(data)
+                    console.log("03 -- "+shop+" -- "+currentShops)
                 }
                 else{
-                    ctx.redirect(`/?shop=${shop}&host=${host}`)
+                    console.log("04 -- "+shop+" -- "+currentShops)
                 }
+                ctx.redirect(`/home?shop=${shop}&host=${host}`)
             }
         })
     )
@@ -77,16 +87,65 @@ app.prepare().then(() => {
 
     router.get("/", async (ctx) => {
         const shop = ctx.query.shop;
-        const currentShops = await shops.distinct('shop',{})
+        currentShops = await shops.distinct('shop',{})
 
         if (currentShops[shop] === undefined) {
-            console.log("01 -- "+shop)
+            console.log("01 -- "+shop+" -- "+currentShops)
             ctx.redirect(`/auth?shop=${shop}`);
         } else {
-            console.log("02 -- "+shop)
+            console.log("02 -- "+shop+" -- "+currentShops)
             await handleRequest(ctx);
         }
     });
+
+    router.get("/home", async (ctx) => {
+        await handleRequest(ctx);
+    });
+//#endregion
+//#region ROUTERS
+    router.post('/widget', koaBody(), async (ctx, next) => {
+        const shop = ctx.query.shop;
+        var widgetProperties = JSON.parse(ctx.request.body);
+        insertWidget(shop,widgetProperties);
+        ctx.body = "Success"
+        await next();
+    })
+//#endregion
+//#region MONGODB
+//#region INSERT SHOP
+    async function insertShop(shopData){
+        try {
+            await shops.create(shopData, (err,result) => {
+                console.log('error ' + err);
+                console.log('result ' + result);
+            })
+        } catch (err) {
+            console.log(err);
+        }
+    }
+//#endregion
+//#region INSERT WIDGET
+    async function insertWidget(shop,widgetData){
+        console.log(shop)
+        //get the number of widgets for the shop
+        currentWidgetsNumber = await shops.countDocuments('widgetId',{shop: shop})
+        try {
+            console.log(currentWidgetsNumber)
+            console.log(widgetData)
+            widgetData.shop = 'meowShop'
+            widgetData.widgetStatus = true
+            widgetData.widgetId = currentWidgetsNumber + 1
+            console.log(currentWidgetsNumber)
+            console.log(widgetData)
+            await widgets.create(widgetData, (err,result) => {
+                console.log('error ' + err);
+                console.log('result ' + result);
+            })
+        } catch (err) {
+            console.log(err);
+        }
+    }
+//#endregion
 //#endregion
 //#region SERVER OPTIONS
     router.get("(/_next/static/.*)", handleRequest);

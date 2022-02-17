@@ -9,13 +9,16 @@ const widgetsSchema = new Schema({
     widgetId: reqNumber, //by me
     widgetName: reqString,
     widgetStatus: reqBoolean,
+    generalStyle: String,
+    pagesToShow: Array,
     //clicks
     calculateClicksLimit: Number,
     totalClicks: Number,
     //widget Top Nav
     daysLeft: String,
     //buttons (Show Settings)
-    showOnMobile: Boolean,
+    showStatusDesktop: Boolean,
+    showStatusMobile: Boolean,
     showProductImage: Boolean,
     showProductName: Boolean,
     showPrice: Boolean,
@@ -37,8 +40,7 @@ const widgetsSchema = new Schema({
     barAlignment: String,
     //Timer
     showUrgencyTime: Boolean,
-    timerStyle: String,
-    timerChooseEvent: String,
+    timerDate: String,
     timerText: String,
     timerBackgroundColor: String,
     timerTextSize: Number,

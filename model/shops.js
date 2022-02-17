@@ -7,8 +7,8 @@ const reqNumber = {type: Number, required: true}
 const shopsSchema = new Schema({
     shop: reqString,
     token: reqString,
-    myWidgets: Number,
-
+    numberOfWidgets: Number,
+    
 },{collection: 'shops', timestamps: true});
 
 const shops = mongoose.model('shops', shopsSchema);
