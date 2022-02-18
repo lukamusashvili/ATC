@@ -8,12 +8,9 @@ const widgetsSchema = new Schema({
     shop: reqString, //by me
     widgetId: reqNumber, //by me
     widgetName: reqString,
-    widgetStatus: reqBoolean,
+    widgetStatus: reqBoolean, //true = enabled
     generalStyle: String,
     pagesToShow: Array,
-    //clicks
-    calculateClicksLimit: Number,
-    totalClicks: Number,
     //widget Top Nav
     daysLeft: String,
     //buttons (Show Settings)

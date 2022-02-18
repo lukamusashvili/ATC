@@ -103,8 +103,29 @@ app.prepare().then(() => {
     });
 //#endregion
 //#region ROUTERS
+    router.get('/widgets', async (ctx, next) => {
+        const shop = 'testShopName' //ctx.query.shop
+        var currentWidgets = await widgets.find({shop: shop},'-_id widgetId widgetName')
+        console.log(currentWidgets)
+        ctx.body = currentWidgets
+        await next();
+    })
+    router.post('/getwidget', koaBody(), async (ctx, next) => {
+        const shop = 'testShopName' //ctx.query.shop
+        var widgetId = ctx.request.body
+        var theWidgetProperties = await widgets.findOne({ shop: shop, widgetId: widgetId }, '-_id -createdAt -updatedAt -__v').exec();
+        ctx.body = theWidgetProperties
+        await next();
+    })
     router.post('/widget', koaBody(), async (ctx, next) => {
-        const shop = ctx.query.shop;
+        const shop = 'testShopName' //ctx.query.shop
+        var widgetProperties = JSON.parse(ctx.request.body);
+        insertWidget(shop,widgetProperties);
+        ctx.body = "Success"
+        await next();
+    })
+    router.put('/widget', koaBody(), async (ctx, next) => {
+        const shop = 'testShopName' //ctx.query.shop
         var widgetProperties = JSON.parse(ctx.request.body);
         insertWidget(shop,widgetProperties);
         ctx.body = "Success"
@@ -126,17 +147,12 @@ app.prepare().then(() => {
 //#endregion
 //#region INSERT WIDGET
     async function insertWidget(shop,widgetData){
-        console.log(shop)
         //get the number of widgets for the shop
         currentWidgetsNumber = await shops.countDocuments('widgetId',{shop: shop})
         try {
-            console.log(currentWidgetsNumber)
-            console.log(widgetData)
-            widgetData.shop = 'meowShop'
+            widgetData.shop = shop
             widgetData.widgetStatus = true
             widgetData.widgetId = currentWidgetsNumber + 1
-            console.log(currentWidgetsNumber)
-            console.log(widgetData)
             await widgets.create(widgetData, (err,result) => {
                 console.log('error ' + err);
                 console.log('result ' + result);
@@ -150,7 +166,7 @@ app.prepare().then(() => {
 //#region SERVER OPTIONS
     router.get("(/_next/static/.*)", handleRequest);
     router.get("/_next/webpack-hmr", handleRequest);
-    router.get("(.*)", verifyRequest(), handleRequest);
+    //router.get("(.*)", verifyRequest(), handleRequest);
 
     server.use(router.allowedMethods());
     server.use(router.routes());
