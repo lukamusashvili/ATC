@@ -126,9 +126,17 @@ app.prepare().then(() => {
     })
     router.put('/widget', koaBody(), async (ctx, next) => {
         const shop = 'testShopName' //ctx.query.shop
-        var widgetProperties = JSON.parse(ctx.request.body);
-        insertWidget(shop,widgetProperties);
+        var widgetProperties = ctx.request.body
+        updateWidget(shop,widgetProperties);
         ctx.body = "Success"
+        await next();
+    })
+    router.post('/widgetdel', koaBody(), async (ctx, next) => {
+        const shop = 'testShopName' //ctx.query.shop
+        var widgetId = ctx.request.body
+        console.log(widgetId)
+        deleteWidget(shop,widgetId);
+        ctx.body = widgetId
         await next();
     })
 //#endregion
@@ -137,8 +145,12 @@ app.prepare().then(() => {
     async function insertShop(shopData){
         try {
             await shops.create(shopData, (err,result) => {
-                console.log('error ' + err);
-                console.log('result ' + result);
+                if(err){
+                    console.log('error ' + err); 
+                }
+                else{
+                    console.log('result ' + result);
+                }
             })
         } catch (err) {
             console.log(err);
@@ -148,15 +160,52 @@ app.prepare().then(() => {
 //#region INSERT WIDGET
     async function insertWidget(shop,widgetData){
         //get the number of widgets for the shop
-        currentWidgetsNumber = await shops.countDocuments('widgetId',{shop: shop})
+        currentWidgetsNumber = await widgets.countDocuments('widgetId',{shop: shop})
         try {
             widgetData.shop = shop
-            widgetData.widgetStatus = true
             widgetData.widgetId = currentWidgetsNumber + 1
             await widgets.create(widgetData, (err,result) => {
-                console.log('error ' + err);
-                console.log('result ' + result);
+                if(err){
+                    console.log('error ' + err); 
+                }
+                else{
+                    console.log('result ' + result);
+                }
             })
+        } catch (err) {
+            console.log(err);
+        }
+    }
+//#endregion
+//#region UPDATE WIDGET
+    async function updateWidget(shop,widgetData){
+        widgetData.shop = shop
+        console.log(widgetData)
+        try {
+            await widgets.replaceOne({ shop: shop, widgetId: widgetData.widgetId }, widgetData), (err,result) => {
+                if(err){
+                    console.log('error ' + err); 
+                }
+                else{
+                    console.log('result ' + result);
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+//#endregion
+//#region DELETE WIDGET
+    async function deleteWidget(shop,widgetId){
+        try {
+            await widgets.deleteOne({ shop: shop, widgetId: widgetId }), (err,result) => {
+                if(err){
+                    console.log('error ' + err); 
+                }
+                else{
+                    console.log('result ' + result);
+                }
+            }
         } catch (err) {
             console.log(err);
         }

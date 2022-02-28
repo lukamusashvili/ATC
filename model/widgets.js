@@ -26,7 +26,7 @@ const widgetsSchema = new Schema({
     borderBackgroundColor: String,
     borderHeight: Number,
     borderAnimation: String,
-    borderSpeedOfAnimation: String,
+    borderSpeedOfAnimation: Number,
     showLoopAnimation: Boolean,
     //buttons (Buy Button Settings)
     buyButtonColor: String,
@@ -38,6 +38,7 @@ const widgetsSchema = new Schema({
     //Timer
     showUrgencyTime: Boolean,
     timerDate: String,
+    timerTime: String,
     timerText: String,
     timerBackgroundColor: String,
     timerTextSize: Number,
