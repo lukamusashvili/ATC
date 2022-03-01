@@ -254,9 +254,9 @@ app.prepare().then(() => {
     else{
         console.log("It's a Production Server");
         const options = {
-            key: fs.readFileSync(path.join(__dirname, 'cert/privkey.pem')),
-            ca: fs.readFileSync(path.join(__dirname, 'cert/chain.pem')),
-            cert: fs.readFileSync(path.join(__dirname, 'cert/cert.pem'))
+            key: fs.readFileSync('/etc/letsencrypt/live/dev.atc.podsolutionshopify.com/privkey.pem'),
+            ca: fs.readFileSync('/etc/letsencrypt/live/dev.atc.podsolutionshopify.com/chain.pem'),
+            cert: fs.readFileSync('/etc/letsencrypt/live/dev.atc.podsolutionshopify.com/cert.pem')
         }
         https.createServer(options, server.callback()).listen(port, () => console.log(`> Ready on https://localhost:${port}`));
     }
