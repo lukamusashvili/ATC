@@ -26,7 +26,7 @@ const widgetsSchema = new Schema({
     borderBackgroundColor: String,
     borderHeight: Number,
     borderAnimation: String,
-    borderSpeedOfAnimation: Number,
+    borderSpeedOfAnimation: String,
     showLoopAnimation: Boolean,
     //buttons (Buy Button Settings)
     buyButtonColor: String,

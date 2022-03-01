@@ -65,7 +65,6 @@ app.prepare().then(() => {
                     {
                         shop: shop,
                         token: accessToken,
-                        numberOfWidgets: 0
                     }
                     insertShop(data)
                     console.log("03 -- "+shop+" -- "+currentShops)
@@ -104,35 +103,60 @@ app.prepare().then(() => {
 //#endregion
 //#region ROUTERS
     router.get('/widgets', async (ctx, next) => {
-        const shop = 'testShopName' //ctx.query.shop
+        if(Production == 0){
+            var shop = 'testShopName'
+        }
+        else{
+            var shop = ctx.query.shop
+        }
         var currentWidgets = await widgets.find({shop: shop},'-_id widgetId widgetName')
         console.log(currentWidgets)
         ctx.body = currentWidgets
         await next();
     })
     router.post('/getwidget', koaBody(), async (ctx, next) => {
-        const shop = 'testShopName' //ctx.query.shop
+        if(Production == 0){
+            var shop = 'testShopName'
+        }
+        else{
+            var shop = ctx.query.shop
+        }
         var widgetId = ctx.request.body
         var theWidgetProperties = await widgets.findOne({ shop: shop, widgetId: widgetId }, '-_id -createdAt -updatedAt -__v').exec();
         ctx.body = theWidgetProperties
         await next();
     })
     router.post('/widget', koaBody(), async (ctx, next) => {
-        const shop = 'testShopName' //ctx.query.shop
+        if(Production == 0){
+            var shop = 'testShopName'
+        }
+        else{
+            var shop = ctx.query.shop
+        }
         var widgetProperties = JSON.parse(ctx.request.body);
         insertWidget(shop,widgetProperties);
         ctx.body = "Success"
         await next();
     })
     router.put('/widget', koaBody(), async (ctx, next) => {
-        const shop = 'testShopName' //ctx.query.shop
+        if(Production == 0){
+            var shop = 'testShopName'
+        }
+        else{
+            var shop = ctx.query.shop
+        }
         var widgetProperties = ctx.request.body
         updateWidget(shop,widgetProperties);
         ctx.body = "Success"
         await next();
     })
     router.post('/widgetdel', koaBody(), async (ctx, next) => {
-        const shop = 'testShopName' //ctx.query.shop
+        if(Production == 0){
+            var shop = 'testShopName'
+        }
+        else{
+            var shop = ctx.query.shop
+        }
         var widgetId = ctx.request.body
         console.log(widgetId)
         deleteWidget(shop,widgetId);
@@ -215,7 +239,9 @@ app.prepare().then(() => {
 //#region SERVER OPTIONS
     router.get("(/_next/static/.*)", handleRequest);
     router.get("/_next/webpack-hmr", handleRequest);
-    //router.get("(.*)", verifyRequest(), handleRequest);
+    if(Production == 1){
+        router.get("(.*)", verifyRequest(), handleRequest);
+    }
 
     server.use(router.allowedMethods());
     server.use(router.routes());
