@@ -1,0 +1,44 @@
+[
+  {
+    "id":1,
+    "widgetName": "pirveli",
+    "generalStyle":"Two",
+    "progressbar":10,
+    "optionalQuestionOne":true,
+    "optionalQuestionTwo":false,
+    "optionalQuestionThree":true,
+    "showOnMobile":true
+ },
+  {
+    "id":2,
+    "widgetName": "meore",
+    "generalStyle":"Two",
+    "progressbar":10,
+    "optionalQuestionOne":true,
+    "optionalQuestionTwo":false,
+    "optionalQuestionThree":true,
+    "showOnMobile":true
+ },
+  {
+    "id":3,
+    "widgetName": "mesame",
+    "generalStyle":"Two",
+    "progressbar":10,
+    "optionalQuestionOne":true,
+    "optionalQuestionTwo":false,
+    "optionalQuestionThree":true,
+    "showOnMobile":true
+ },
+  {
+    "id":4,
+    "widgetName": "4",
+    "generalStyle":"Two",
+    "progressbar":10,
+    "optionalQuestionOne":true,
+    "optionalQuestionTwo":false,
+    "optionalQuestionThree":true,
+    "showOnMobile":true
+ }
+
+
+ ]

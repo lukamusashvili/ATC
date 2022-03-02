@@ -8,9 +8,11 @@ const { verifyRequest } = require('@shopify/koa-shopify-auth')
 const { default: Shopify, ApiVersion } = require('@shopify/shopify-api');
 const Router = require('koa-router');
 const koaBody = require('koa-body');
+const serve = require('koa-static');
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const cors = require('@koa/cors');
 const https = require('https');
+const fs = require('fs');
 
 const mongoose = require('mongoose');
 const mongoPath = process.env.MongoDBPath;
@@ -85,16 +87,15 @@ app.prepare().then(() => {
     };
 
     router.get("/", async (ctx) => {
-        const shop = ctx.query.shop;
-        currentShops = await shops.distinct('shop',{})
+        await handleRequest(ctx);
+    });
 
-        if (currentShops[shop] === undefined) {
-            console.log("01 -- "+shop+" -- "+currentShops)
-            ctx.redirect(`/auth?shop=${shop}`);
-        } else {
-            console.log("02 -- "+shop+" -- "+currentShops)
-            await handleRequest(ctx);
-        }
+    router.get("/buttons", async (ctx) => {
+        await handleRequest(ctx);
+    });
+
+    router.get("/analytics", async (ctx) => {
+        await handleRequest(ctx);
     });
 
     router.get("/home", async (ctx) => {
@@ -184,20 +185,25 @@ app.prepare().then(() => {
 //#region INSERT WIDGET
     async function insertWidget(shop,widgetData){
         //get the number of widgets for the shop
-        currentWidgetsNumber = await widgets.countDocuments('widgetId',{shop: shop})
-        try {
-            widgetData.shop = shop
-            widgetData.widgetId = currentWidgetsNumber + 1
-            await widgets.create(widgetData, (err,result) => {
-                if(err){
-                    console.log('error ' + err); 
-                }
-                else{
-                    console.log('result ' + result);
-                }
-            })
-        } catch (err) {
-            console.log(err);
+        sortWidgetIds = await widgets.findOne({shop: shop}).sort('-widgetId').exec(function(err, item){
+            var theLastWidgetId = item.widgetId
+            insertNewWidget(theLastWidgetId)
+        })
+        async function insertNewWidget(theLastWidgetId){
+            try {
+                widgetData.shop = shop
+                widgetData.widgetId = theLastWidgetId + 1
+                await widgets.create(widgetData, (err,result) => {
+                    if(err){
+                        console.log('error ' + err); 
+                    }
+                    else{
+                        console.log('result ' + result);
+                    }
+                })
+            } catch (err) {
+                console.log(err);
+            }
         }
     }
 //#endregion
@@ -243,6 +249,7 @@ app.prepare().then(() => {
         router.get("(.*)", verifyRequest(), handleRequest);
     }
 
+    server.use(serve('./public'));
     server.use(router.allowedMethods());
     server.use(router.routes());
     if(Production == 0){
