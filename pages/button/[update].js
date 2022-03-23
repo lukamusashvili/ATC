@@ -272,7 +272,10 @@ export class update extends Component
            postmethod = 'POST'
            mode = 'no-cors'
         }
-        fetch(`/widget`, {
+        var a = window.location.ancestorOrigins[0]
+        var shop = a.slice(8, a.length);
+        console.log(shop)
+        fetch(`/widget?shop=`+shop, {
             method: postmethod,
             mode: mode,
             headers: {
@@ -310,7 +313,7 @@ export class update extends Component
         redirect: 'follow'
       };
       
-      fetch(`/getwidget`, requestOptions)
+      fetch(`https://dev.atc.podsolutionshopify.com:3002/getwidget`, requestOptions)
       .then(response => response.json())
       .then(res => this.setState({updateResponse:res}))
       .catch(error => console.log('error', error));

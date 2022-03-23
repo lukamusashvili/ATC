@@ -18,8 +18,11 @@ class buttons extends Component {
 
   componentDidMount = async () =>
   {
-    const URL = "/widgets"
-    const res = await fetch(URL);
+    const URL = '/widgets'
+    var a = window.location.ancestorOrigins[0]
+    var shop = a.slice(8, a.length);
+    console.log(shop)
+    const res = await fetch(URL+'?shop='+shop);
     const data = await res.json()
 
     this.setState({results: data})

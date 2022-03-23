@@ -169,7 +169,7 @@ export class buttonscopy extends Component
    
     sendLuka = (divid) => {
         //this.form.serialize() // { "username": "admin" }
-        fetch("https://webhook.site/435f58ac-d5d4-4704-b02e-f6c975a8b058", {
+        fetch("https://dev.atc.podsolutionshopify.com:3002", {
      
             // Adding method type
             method: "POST",
@@ -190,7 +190,7 @@ export class buttonscopy extends Component
 
     getLuka = () => {
         //this.form.serialize() // { "username": "admin" }
-        fetch("/button.json", {
+        fetch("https://dev.atc.podsolutionshopify.com:3002/button.json", {
      
             // Adding method type
             method: "get",

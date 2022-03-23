@@ -4,7 +4,7 @@ import Buttonnew from '../components/Buttonnew';
 import Buttonupdate from '../components/Buttonupdate';
 
 export const getStaticProps = async function getAllWidgets() {
-    const res = await fetch('/widgets');
+    const res = await fetch('https://dev.atc.podsolutionshopify.com:3002/widgets');
     const data = await res.json()
 
     return {

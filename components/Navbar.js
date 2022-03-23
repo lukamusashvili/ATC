@@ -48,7 +48,7 @@ function Navbar({children}) {
                     router.pathname == "/" ? "active" : ""
                   } ${`nav-link`}`}
                 >
-                  <Link href="/" className="nav-link">
+                  <Link href="/?shop=test" className="nav-link">
                     Dashboard
                   </Link>
                 </li>
@@ -63,7 +63,7 @@ function Navbar({children}) {
 
                 <li
                   className={`${
-                    router.pathname == "/buttons" ? "active" : ""
+                    router.pathname == "/buttons?shop=test" ? "active" : ""
                   } ${`nav-link`}`}
                 >
                   <Link href="/buttons">Buttons</Link>

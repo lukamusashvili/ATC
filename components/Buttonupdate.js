@@ -33,8 +33,12 @@ class Buttonupdate extends Component
           headers: myHeaders,
           body: myid,
         };
+
+        var a = window.location.ancestorOrigins[0]
+        var shop = a.slice(8, a.length);
+        console.log(shop)
         
-        fetch(`/widgetdel`, requestOptions)
+        fetch(`/widgetdel?shop=`+shop, requestOptions)
           .then(response => response.text())
           .then(result => console.log(result))
           .catch(error => console.log('error', error));

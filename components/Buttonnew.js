@@ -6,7 +6,7 @@ function sendLuka(showOnMobile)
 {
 
 
-  fetch("https://58fe-109-172-169-150.ngrok.io/widgets", {
+  fetch("https://dev.atc.podsolutionshopify.com:3002/widgets", {
      
     // Adding method type
     method: "POST",

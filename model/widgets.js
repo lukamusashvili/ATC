@@ -11,6 +11,8 @@ const widgetsSchema = new Schema({
     widgetStatus: reqBoolean, //true = enabled
     generalStyle: String,
     pagesToShow: Array,
+    goToCheckout: Boolean,
+    calculateClicks: Boolean,
     //widget Top Nav
     daysLeft: String,
     //buttons (Show Settings)
@@ -46,14 +48,13 @@ const widgetsSchema = new Schema({
     timerFont: String,
     //Media
     showMediaIcons: Boolean,
-    showMediaIconsFacebook: Boolean,
     showMediaIconsFacebookUrl: String,
-    showMediaIconsInstagram: Boolean,
-    showMediaIconsTwitter: Boolean,
-    showMediaIconsGoogle: Boolean,
-    showMediaIconsLinkedin: Boolean,
-    showMediaIconsPinterest: Boolean,
-    showMediaIconsTumblr: Boolean
+    showMediaIconsInstagramUrl: String,
+    showMediaIconsTwitterUrl: String,
+    showMediaIconsGoogleUrl: String,
+    showMediaIconsLinkedinUrl: String,
+    showMediaIconsPinterestUrl: String,
+    showMediaIconsTumblrUrl: String
 },{collection: 'widgets', timestamps: true});
 
 const widgets = mongoose.model('widgets', widgetsSchema);
