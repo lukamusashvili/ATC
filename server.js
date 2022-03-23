@@ -188,6 +188,17 @@ app.prepare().then(() => {
         ctx.body = widgetId
         await next();
     })
+    router.put('/widgetstatus', koaBody(), async (ctx, next) => {
+        var shop = ctx.query.shop
+        if(Production == 0){
+            shop = 'testShopName'
+        }
+        console.log("requested to widgetstatus (put) and shop is "+shop)
+        var widgetProperties = ctx.request.body
+        updateWidgetStatus(shop,widgetProperties);
+        ctx.body = widgetProperties
+        await next();
+    })
     router.post('/click', koaBody(), async (ctx, next) => {
         if(Production == 0){
             shop = 'testShopName'
@@ -197,17 +208,6 @@ app.prepare().then(() => {
         console.log(clickProperties)
         insertClick(clickProperties);
         ctx.body = clickProperties
-        await next();
-    })
-    router.put('/widgetstatus', koaBody(), async (ctx, next) => {
-        var shop = ctx.query.shop
-        if(Production == 0){
-            shop = 'testShopName'
-        }
-        console.log("requested to widgetstatus (put) and shop is "+shop)
-        var widgetProperties = ctx.request.body
-        updateWidgetStatus(shop,widgetProperties);
-        ctx.body = "Success"
         await next();
     })
 //#endregion
@@ -286,9 +286,8 @@ app.prepare().then(() => {
 //#endregion
 //#region UPDATE WIDGETSTATUS
     async function updateWidgetStatus(shop,widgetData){
-        widgetData.shop = shop
         try {
-            await widgets.replaceOne({ shop: shop, widgetId: widgetData.widgetId }, widgetData), (err,result) => {
+            await widgets.updateOne({ shop: shop, widgetId: widgetData.widgetId }, {widgetStatus: widgetData.widgetStatus}), (err,result) => {
                 if(err){
                     console.log('error ' + err); 
                 }
