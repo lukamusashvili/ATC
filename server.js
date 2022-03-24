@@ -295,10 +295,6 @@ app.prepare().then(() => {
                     console.log('result ' + result);
                 }
             }
-        } catch (err) {
-            console.log(err);
-        }
-        try {
             await widgets.updateOne({ shop: shop, widgetId: widgetData.widgetId }, {$set:{widgetStatus: widgetData.widgetStatus}}), (err,result) => {
                 if(err){
                     console.log('error ' + err); 
