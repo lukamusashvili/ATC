@@ -294,7 +294,14 @@ app.prepare().then(() => {
                 else{
                     console.log('result ' + result);
                 }
+                updateWidgetStatusTrue(shop,widgetData)
             }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+    async function updateWidgetStatusTrue(shop,widgetData){
+        try{
             await widgets.updateOne({ shop: shop, widgetId: widgetData.widgetId }, {$set:{widgetStatus: widgetData.widgetStatus}}), (err,result) => {
                 if(err){
                     console.log('error ' + err); 
