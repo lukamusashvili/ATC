@@ -287,7 +287,19 @@ app.prepare().then(() => {
 //#region UPDATE WIDGETSTATUS
     async function updateWidgetStatus(shop,widgetData){
         try {
-            await widgets.updateOne({ shop: shop, widgetId: widgetData.widgetId }, {widgetStatus: widgetData.widgetStatus}), (err,result) => {
+            await widgets.updateOne({ shop: shop, widgetStatus: true }, {$set: {widgetStatus: false}}), (err,result) => {
+                if(err){
+                    console.log('error ' + err); 
+                }
+                else{
+                    console.log('result ' + result);
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+        try {
+            await widgets.updateOne({ shop: shop, widgetId: widgetData.widgetId }, {$set:{widgetStatus: widgetData.widgetStatus}}), (err,result) => {
                 if(err){
                     console.log('error ' + err); 
                 }
