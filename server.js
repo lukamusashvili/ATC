@@ -71,9 +71,10 @@ app.prepare().then(() => {
                     {
                         shop: shop,
                         token: accessToken,
+                        plan: "Test"
                     }
                     insertShop(data)
-                    console.log("04 -- "+shop+" -- "+currentShops)
+                    console.log("04 -- "+shop+" -- "+currentShops+" -- "+data)
                 }
                 ctx.redirect(`/?shop=${shop}&host=${host}`)
             }
@@ -137,7 +138,7 @@ app.prepare().then(() => {
         if(Production == 0){
             shop = 'testShopName'
         }
-        console.log("requested to widgets (get) and shop is "+shop)
+        console.log("requested to widgets (post) and shop is "+shop)
         var currentWidgets = await widgets.find({shop: shop},'-_id widgetId widgetName widgetStatus')
         console.log(currentWidgets)
         ctx.body = currentWidgets
@@ -199,7 +200,18 @@ app.prepare().then(() => {
         ctx.body = widgetProperties
         await next();
     })
+    router.post('/enabledwidget', koaBody(), async (ctx, next) => {
+        var shop = ctx.query.shop
+        if(Production == 0){
+            shop = 'testShopName'
+        }
+        console.log("requested to enabledwidget (post) and shop is "+shop)
+        var theWidgetProperties = await widgets.findOne({ shop: shop, widgetStatus: true }, '-_id -createdAt -updatedAt -__v')
+        ctx.body = theWidgetProperties
+        await next();
+    })
     router.post('/click', koaBody(), async (ctx, next) => {
+        var shop = ctx.request.body.shop
         if(Production == 0){
             shop = 'testShopName'
         }
@@ -208,6 +220,47 @@ app.prepare().then(() => {
         console.log(clickProperties)
         insertClick(clickProperties);
         ctx.body = clickProperties
+        await next();
+    })
+    router.post('/totalclicks', async (ctx, next) => {
+        var shop = ctx.query.shop
+        if(Production == 0){
+            shop = 'testShopName'
+        }
+        console.log("requested to totalclicks (post) and shop is "+shop)
+        const totalClicks = await clicks.countDocuments({shop: shop})
+        console.log(shop)
+        console.log(typeof(shop))
+        console.log(typeof("shop"))
+        const totalWidgets = await widgets.countDocuments({shop: shop})
+        const shopPlan = await shops.findOne({ shop: shop}, 'token')
+        const data =
+        {
+            "totalClicks":totalClicks,
+            "totalWidgets":totalWidgets,
+            "shopPlan":shopPlan
+        }
+        ctx.body = data
+        await next();
+    })
+    router.post('/widgetsclicks', async (ctx, next) => {
+        var shop = ctx.query.shop
+        if(Production == 0){
+            shop = 'testShopName'
+        }
+        console.log("requested to widgetsclicks (post) and shop is "+shop)
+        const widgetsClicks = await clicks.aggregate([{$match:{shop:shop}},{$group:{_id:"$widgetId",count:{$sum:1}}}])
+        ctx.body = widgetsClicks
+        await next();
+    })
+    router.post('/widgetsanalytics', async (ctx, next) => {
+        var shop = ctx.query.shop
+        if(Production == 0){
+            shop = 'testShopName'
+        }
+        console.log("requested to widgetsanalytics (post) and shop is "+shop)
+        const widgetsAnalytics = await widgets.find({shop: shop},'-_id widgetId widgetName pagesToShow widgetStatus created_at')
+        ctx.body = widgetsAnalytics
         await next();
     })
 //#endregion
@@ -233,7 +286,7 @@ app.prepare().then(() => {
         widgetData.shop = shop
         //get the number of widgets for the shop
         try{
-            sortWidgetIds = await widgets.findOne({shop: shop}).sort('-widgetId').exec(function(err, item){
+            await widgets.findOne({shop: shop}).sort('-widgetId').exec(function(err, item){
                 try{
                     var theLastWidgetId = item.widgetId
                     widgetData.widgetId = theLastWidgetId + 1
@@ -271,14 +324,14 @@ app.prepare().then(() => {
     async function updateWidget(shop,widgetData){
         widgetData.shop = shop
         try {
-            await widgets.replaceOne({ shop: shop, widgetId: widgetData.widgetId }, widgetData), (err,result) => {
+            await widgets.replaceOne({ shop: shop, widgetId: widgetData.widgetId }, widgetData, (err,result) => {
                 if(err){
                     console.log('error ' + err); 
                 }
                 else{
                     console.log('result ' + result);
                 }
-            }
+            })
         } catch (err) {
             console.log(err);
         }
@@ -287,31 +340,27 @@ app.prepare().then(() => {
 //#region UPDATE WIDGETSTATUS
     async function updateWidgetStatus(shop,widgetData){
         try {
-            await widgets.updateOne({ shop: shop, widgetStatus: true }, {$set: {widgetStatus: false}}), (err,result) => {
-                if(err){
-                    console.log('error ' + err); 
-                }
-                else{
-                    console.log('result ' + result);
-                }
-                updateWidgetStatusTrue(shop,widgetData)
+            if(typeof(widgetData)==="string"){
+                var objWidgetData = JSON.parse(widgetData)
             }
+            else{
+                var objWidgetData = widgetData
+            }
+            const widgetStatusOff = await widgets.updateOne({ shop: shop, widgetStatus: true }, {$set: {widgetStatus: false}})
+            console.log('result ' + JSON.stringify(widgetStatusOff));
+            updateWidgetStatusOn()
         } catch (err) {
             console.log(err);
         }
-    }
-    async function updateWidgetStatusTrue(shop,widgetData){
-        try{
-            await widgets.updateOne({ shop: shop, widgetId: widgetData.widgetId }, {$set:{widgetStatus: widgetData.widgetStatus}}), (err,result) => {
-                if(err){
-                    console.log('error ' + err); 
-                }
-                else{
-                    console.log('result ' + result);
-                }
+    
+        async function updateWidgetStatusOn(){
+            try {
+                console.log(shop,objWidgetData.widgetId,objWidgetData.widgetStatus)
+                const widgetStatusOn = await widgets.updateOne({ shop: shop, widgetId: objWidgetData.widgetId }, {$set:{widgetStatus: objWidgetData.widgetStatus}})
+                console.log('result ' + JSON.stringify(widgetStatusOn));
+            } catch (err) {
+                console.log(err);
             }
-        } catch (err) {
-            console.log(err);
         }
     }
 //#endregion
@@ -334,7 +383,13 @@ app.prepare().then(() => {
 //#region INSERT CLICK
     async function insertClick(clickProperties){
         try {
-            await clicks.create(clickProperties, (err,result) => {
+            if(typeof(clickProperties)==="string"){
+                var objclickProperties = JSON.parse(clickProperties)
+            }
+            else{
+                var objclickProperties = clickProperties
+            }
+            await clicks.create(objclickProperties, (err,result) => {
                 if(err){
                     console.log('error ' + err); 
                 }
